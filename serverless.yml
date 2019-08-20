@@ -89,18 +89,18 @@ functions:
           route: $disconnect
 
   handleDefault:
-    handler: handler.handleDefault
+    handler: handler.handle_default
     events:
       - websocket: $default #simple event definition without extra route property
 
   createGame:
-    handler: handler.createGame
+    handler: handler.create_game
     events:
       - websocket:
           route: createGame
 
   getGame:
-    handler: handler.getGame
+    handler: handler.get_game
     events:
       - websocket:
           route: getGame

@@ -23,3 +23,10 @@ var/
 node_modules/
 package.json
 package-lock.json
+
+#python venv
+venv/
+
+#idea project
+.idea/
+*.iml
