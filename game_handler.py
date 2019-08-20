@@ -11,21 +11,6 @@ dynamodb = boto3.resource('dynamodb')
 gameDb = dynamodb.Table(os.environ['DYNAMO_GAMES_TABLE'])
 
 
-def connect(event, context):
-    return { 'statusCode': 200 }
-
-
-def disconnect(event, context):
-    return { 'statusCode': 200 }
-
-
-def handle_default(event, context):
-    data = {'error': 'unknown action'}
-    send_event_response(event, data)
-
-    return { 'statusCode': 200 }
-
-
 def create_game(event, context):
 
     connectionId, _ = get_ws_details(event)

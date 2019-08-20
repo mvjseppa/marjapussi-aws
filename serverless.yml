@@ -77,30 +77,30 @@ provider:
 
 functions:
   connect:
-    handler: handler.connect
+    handler: connect_handler.connect
     events:
       - websocket:
           route: $connect
 
   disconnect:
-    handler: handler.disconnect
+    handler: connect_handler.disconnect
     events:
       - websocket:
           route: $disconnect
 
   handleDefault:
-    handler: handler.handle_default
+    handler: default_handler.handle_default
     events:
       - websocket: $default #simple event definition without extra route property
 
   createGame:
-    handler: handler.create_game
+    handler: game_handler.create_game
     events:
       - websocket:
           route: createGame
 
   getGame:
-    handler: handler.get_game
+    handler: game_handler.get_game
     events:
       - websocket:
           route: getGame
