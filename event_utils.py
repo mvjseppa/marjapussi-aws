@@ -11,7 +11,7 @@ def get_ws_details(event):
 
 def send_event_response(event, data):
     connection_id, endpoint_url = get_ws_details(event)
-    client = boto3.client('apigatewaymanagementapi', endpoint_url = endpoint_url)
+    client = boto3.client('apigatewaymanagementapi', endpoint_url=endpoint_url)
     client.post_to_connection(
         ConnectionId=connection_id,
         Data=json.dumps(data).encode('utf-8')

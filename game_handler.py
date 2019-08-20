@@ -7,8 +7,8 @@ from event_utils import get_ws_details, send_event_response
 
 from botocore.exceptions import ClientError
 
-dynamodb = boto3.resource('dynamodb')
-gameDb = dynamodb.Table(os.environ['DYNAMO_GAMES_TABLE'])
+dynamo = boto3.resource('dynamodb')
+game_db = dynamo.Table(os.environ['DYNAMO_GAMES_TABLE'])
 
 
 def create_game(event, context):
@@ -28,7 +28,7 @@ def create_game(event, context):
         'gameState': newGame
     }
 
-    gameDb.put_item(Item=item)
+    game_db.put_item(Item=item)
     send_event_response(event, {'id': item['id']})
     return { 'statusCode': 200 }
 
@@ -38,7 +38,7 @@ def get_game(event, context):
     game_id = body['id']
 
     try:
-        response = gameDb.get_item(Key={'id': game_id})
+        response = game_db.get_item(Key={'id': game_id})
         item = response['Item']
     except (KeyError, ClientError):
         item = None
