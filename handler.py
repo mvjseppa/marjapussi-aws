@@ -3,26 +3,12 @@ import boto3
 import uuid
 import os
 
+from event_utils import get_ws_details, send_event_response
+
 from botocore.exceptions import ClientError
 
 dynamodb = boto3.resource('dynamodb')
 gameDb = dynamodb.Table(os.environ['DYNAMO_GAMES_TABLE'])
-
-
-def _get_ws_details(event):
-    req = event['requestContext']
-    connection_id = req['connectionId'];
-    endpoint_url = 'https://' + req['domainName'] + '/' + req['stage']
-    return connection_id, endpoint_url
-
-
-def _send_event_response(event, data):
-    connection_id, endpoint_url = _get_ws_details(event)
-    client = boto3.client('apigatewaymanagementapi', endpoint_url = endpoint_url)
-    client.post_to_connection(
-        ConnectionId=connection_id,
-        Data=json.dumps(data).encode('utf-8')
-    )
 
 
 def connect(event, context):
@@ -35,14 +21,14 @@ def disconnect(event, context):
 
 def handle_default(event, context):
     data = {'error': 'unknown action'}
-    _send_event_response(event, data)
+    send_event_response(event, data)
 
     return { 'statusCode': 200 }
 
 
 def create_game(event, context):
 
-    connectionId, _ = _get_ws_details(event)
+    connectionId, _ = get_ws_details(event)
 
     newGame = {
       'players': {'1': connectionId, '2': None, '3': None, '4': None},
@@ -58,16 +44,16 @@ def create_game(event, context):
     }
 
     gameDb.put_item(Item=item)
-    _send_event_response(event, {'id': item['id']})
+    send_event_response(event, {'id': item['id']})
     return { 'statusCode': 200 }
 
 
 def get_game(event, context):
     body = json.loads(event['body'])
-    id = body['id']
+    game_id = body['id']
 
     try:
-        response = gameDb.get_item(Key={'id': id})
+        response = gameDb.get_item(Key={'id': game_id})
         item = response['Item']
     except (KeyError, ClientError):
         item = None
@@ -75,8 +61,8 @@ def get_game(event, context):
     print(item)
 
     if item:
-        _send_event_response(event, {'game': item})
+        send_event_response(event, {'game': item})
     else:
-        _send_event_response(event, {'error': 'not found'})
+        send_event_response(event, {'error': 'not found'})
 
     return { 'statusCode': 200 }
