@@ -13,19 +13,11 @@ game_db = dynamo.Table(os.environ['DYNAMO_GAMES_TABLE'])
 
 def create_game(event, context):
 
-    connectionId, _ = get_ws_details(event)
-
-    newGame = {
-      'players': {'1': connectionId, '2': None, '3': None, '4': None},
-      'hands': {'1': ['ab', 'cd'], '2': ['ef', 'gh'], '3': ['ij'], '4': ['J']},
-      'table': [],
-      'discard': [],
-      'turn': 0
-    }
+    connection_id, _ = get_ws_details(event)
 
     item = {
         'id': str(uuid.uuid1()),
-        'gameState': newGame
+        'gameState': new_game
     }
 
     game_db.put_item(Item=item)
