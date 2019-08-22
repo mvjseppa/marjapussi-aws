@@ -2,6 +2,7 @@ import simplejson as json
 import boto3
 import uuid
 import os
+import marjapussi
 
 from event_utils import get_ws_details, send_event_response
 
@@ -15,19 +16,24 @@ def create_game(event, context):
 
     connection_id, _ = get_ws_details(event)
 
-    item = {
-        'id': str(uuid.uuid1()),
-        'gameState': new_game
+    game = marjapussi.MarjapussiGame()
+    player_id = game.join(connection_id)
+
+    db_item = game.to_dict_full()
+    response_item = {
+        "gameState": game.to_dict_for_player(player_id),
+        "playerId": player_id
     }
 
-    game_db.put_item(Item=item)
-    send_event_response(event, {'id': item['id']})
-    return { 'statusCode': 200 }
+    game_db.put_item(Item=db_item)
+    send_event_response(event, response_item)
+    return {'statusCode': 200}
 
 
 def get_game(event, context):
     body = json.loads(event['body'])
-    game_id = body['id']
+    game_id = body['gameId']
+    player_id = body['playerId']
 
     try:
         response = game_db.get_item(Key={'id': game_id})
@@ -35,11 +41,10 @@ def get_game(event, context):
     except (KeyError, ClientError):
         item = None
 
-    print(item)
-
     if item:
-        send_event_response(event, {'game': item})
+        response_item = marjapussi.MarjapussiGame.from_dict(item).to_dict_for_player(player_id)
+        send_event_response(event, {'game': response_item})
     else:
         send_event_response(event, {'error': 'not found'})
 
-    return { 'statusCode': 200 }
+    return {'statusCode': 200}

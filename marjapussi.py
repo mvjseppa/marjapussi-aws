@@ -1,4 +1,5 @@
 import random
+import uuid
 from typing import Optional, List
 from copy import deepcopy
 
@@ -32,8 +33,9 @@ class MarjapussiPlayerCards:
 
 
 class MarjapussiPlayer:
-    def __init__(self, player_id, position):
-        self.id = player_id
+    def __init__(self, connection_id, position):
+        self.id = str(uuid.uuid4())
+        self.connection_id = connection_id
         self.cards = MarjapussiPlayerCards()
         self.position = position
         self.score = 0
@@ -50,22 +52,23 @@ class MarjapussiPlayer:
 
 class MarjapussiGame:
     def __init__(self):
+        self.id = str(uuid.uuid4())
         self.players: List[Optional[MarjapussiPlayer]] = [None] * 4
         self.active_player = None
         self.dealer = None
         self.trump = None
 
-    def join(self, player_id):
+    def join(self, connection_id):
         try:
             free_slot = self.players.index(None)
         except ValueError:
-            return False
-        self.players[free_slot] = MarjapussiPlayer(player_id, free_slot)
+            return None
+        self.players[free_slot] = MarjapussiPlayer(connection_id, free_slot)
 
         if free_slot == 0:
             self.active_player = self.dealer = self.players[0]
 
-        return True
+        return self.players[free_slot].id
 
     def deal(self):
         if None in self.players:

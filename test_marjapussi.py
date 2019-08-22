@@ -14,8 +14,9 @@ class MarjapussiNewGameTestCase(unittest.TestCase):
 
     def test_adding_players(self):
         game = marjapussi.MarjapussiGame()
-        for idx, player_id in enumerate([123, 456, 789, 612]):
-            self.assertTrue(game.join(player_id))
+        for idx, connection_id in enumerate([123, 456, 789, 612]):
+            player_id = game.join(connection_id)
+            self.assertIsNotNone(player_id)
             players = list(filter(lambda x: x is not None, game.players))
             self.assertEqual(idx + 1, len(players))
 
