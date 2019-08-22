@@ -1,5 +1,4 @@
 import random
-import simplejson as json
 from typing import Optional, List
 from copy import deepcopy
 
