@@ -1,6 +1,5 @@
 import simplejson as json
 import boto3
-import uuid
 import os
 import marjapussi
 

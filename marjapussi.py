@@ -132,20 +132,24 @@ class MarjapussiGame:
     def to_dict_full(self):
         game = deepcopy(self)
 
-        game.active_player = game.active_player.id
-        game.dealer = game.dealer.id
+        if game.active_player is not None:
+            game.active_player = game.active_player.id
+
+        if game.dealer is not None:
+            game.dealer = game.dealer.id
 
         for p in game.players:
-            p.cards = vars(p.cards)
+            if p is not None:
+                p.cards = vars(p.cards)
 
-        game.players = [vars(p) for p in game.players]
+        game.players = [None if p is None else vars(p) for p in game.players]
 
         return vars(game)
 
     def to_dict_for_player(self, player_id):
         game = self.to_dict_full()
         for p in game['players']:
-            if p['id'] != player_id:
+            if p is not None and p['id'] != player_id:
                 p['cards']['hand'] = len(p['cards']['hand'])
 
         return game
@@ -153,8 +157,18 @@ class MarjapussiGame:
     @staticmethod
     def from_dict(d):
         game = MarjapussiGame()
-        game.players = [MarjapussiPlayer.from_dict(pd) for pd in d['players']]
+        game.players = [None if pd is None else MarjapussiPlayer.from_dict(pd) for pd in d['players']]
+
         for k, v in d.items():
             if k != 'players':
                 setattr(game, k, v)
+
+        for p in game.players:
+            if p is None:
+                continue
+            if p.id == game.dealer:
+                game.dealer = p
+            if p.id == game.active_player:
+                game.active_player = p
+
         return game
