@@ -42,7 +42,17 @@ class MarjapussiNewGameTestCase(unittest.TestCase):
         for p in game.players:
             self.assertEqual([], p.cards.hand)
 
+        self.assertIsNotNone(game.dealer)
+        self.assertIsNotNone(game.active_player)
+        self.assertEqual(game.players[0], game.dealer)
+        self.assertEqual(game.players[0], game.active_player)
+
         self.assertTrue(game.deal())
+
+        self.assertIsNotNone(game.dealer)
+        self.assertIsNotNone(game.active_player)
+        self.assertEqual(game.players[1], game.dealer)
+        self.assertEqual(game.players[0], game.active_player)
 
         for p in game.players:
             self.assertEqual(9, len(p.cards.hand))
@@ -50,9 +60,84 @@ class MarjapussiNewGameTestCase(unittest.TestCase):
             self.assertEqual([], p.cards.won)
 
 
-class MarjapussiDealTestCase(unittest.TestCase):
+class MarjapussiGameActionsTestCase(unittest.TestCase):
     def setUp(self):
         self.game = marjapussi.MarjapussiGame()
+        for pid in range(4):
+            self.assertTrue(self.game.join(pid))
+        self.game.deal()
+
+    def test_playing_card(self):
+        self.assertEqual(self.game.active_player, self.game.players[0])
+
+        pid = self.game.active_player.id
+        card = self.game.active_player.cards.hand[0]
+        self.assertTrue(self.game.play_card(pid, card))
+
+        self.assertEqual(self.game.active_player, self.game.players[1])
+        self.assertTrue(card not in self.game.players[0].cards.hand)
+        self.assertEqual(card, self.game.players[0].cards.table)
+
+    def test_can_play_card_only_on_own_turn(self):
+        self.assertEqual(self.game.active_player, self.game.players[0])
+
+        pid = self.game.players[1].id
+        card = self.game.players[1].cards.hand[0]
+        self.assertFalse(self.game.play_card(pid, card))
+
+        self.assertEqual(self.game.active_player, self.game.players[0])
+        self.assertTrue(card in self.game.players[1].cards.hand)
+        self.assertIsNone(self.game.players[1].cards.table)
+
+        pid = self.game.active_player.id
+        card = self.game.active_player.cards.hand[0]
+        self.assertTrue(self.game.play_card(pid, card))
+
+        pid = self.game.players[1].id
+        card = self.game.players[1].cards.hand[0]
+        self.assertTrue(self.game.play_card(pid, card))
+        self.assertTrue(card not in self.game.players[1].cards.hand)
+        self.assertEqual(card, self.game.players[1].cards.table)
+
+    def test_cannot_play_card_that_if_not_in_hand(self):
+        self.assertEqual(self.game.active_player, self.game.players[0])
+        pid = self.game.players[0].id
+        card = self.game.players[1].cards.hand[4]
+        self.assertFalse(self.game.play_card(pid, card))
+
+        self.assertEqual(self.game.active_player, self.game.players[0])
+        self.assertTrue(card in self.game.players[1].cards.hand)
+        self.assertIsNone(self.game.players[1].cards.table)
+
+    def test_playing_turn_is_passed_correctly(self):
+        self.assertEqual(self.game.active_player, self.game.players[0])
+        for turn in range(9):
+            expected_player = turn % 4
+            self.assertEqual(self.game.active_player, self.game.players[expected_player])
+
+            pid = self.game.active_player.id
+            card = self.game.active_player.cards.hand[0]
+            self.assertTrue(self.game.play_card(pid, card))
+
+    def test_dealer_turn_is_passed_correctly(self):
+        self.assertEqual(self.game.active_player, self.game.players[0])
+        self.assertEqual(self.game.dealer, self.game.players[1])
+
+        for turn in range(9):
+            expected_dealer = (turn + 1) % 4
+            self.assertEqual(self.game.dealer, self.game.players[expected_dealer])
+            self.assertTrue(self.game.active_player, self.game.dealer)
+
+            pid = self.game.active_player.id
+            card = self.game.active_player.cards.hand[0]
+            self.assertTrue(self.game.play_card(pid, card))
+
+            self.assertEqual(self.game.dealer, self.game.players[expected_dealer])
+
+            self.assertTrue(self.game.deal())
+
+
+
 
 
 
