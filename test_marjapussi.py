@@ -136,11 +136,62 @@ class MarjapussiGameActionsTestCase(unittest.TestCase):
 
             self.assertTrue(self.game.deal())
 
+class MarjapussiTrickScoringTestCase(unittest.TestCase):
+    def setUp(self):
+        self.game = marjapussi.MarjapussiGame()
+        for pid in range(4):
+            self.assertTrue(self.game.join(pid))
 
+    def prepare_trick(self, trick):
+        for card, player in zip(trick, self.game.players):
+            player.cards.table = card
 
+    def check_winner(self):
+        for p in self.game.players:
+            if len(p.cards.won) != 0:
+                return p
+        return None
 
+    def test_score_trick_all_same_suit(self):
+        test_trick = ['H6', 'HK', 'H10', 'H8']
+        self.prepare_trick(test_trick)
+        self.assertTrue(self.game.check_trick_end())
+        self.assertEqual(self.game.players[2], self.check_winner())
 
+    def test_score_trick_all_different_suit_no_trump(self):
+        test_trick = ['H6', 'DK', 'C10', 'S8']
+        self.prepare_trick(test_trick)
+        self.assertTrue(self.game.check_trick_end())
+        self.assertEqual(self.game.players[0], self.check_winner())
 
+    def test_score_trick_all_different_suit_no_trump_change_starter(self):
+        test_trick = ['H6', 'DK', 'C10', 'S8']
+        self.prepare_trick(test_trick)
+
+        self.game.active_player = self.game.players[1]
+
+        self.assertTrue(self.game.check_trick_end())
+        self.assertEqual(self.game.players[1], self.check_winner())
+
+    def test_score_trick_with_trumps_change_starter(self):
+        test_trick = ['D6', 'D7', 'C10', 'CA']
+        self.prepare_trick(test_trick)
+
+        self.game.active_player = self.game.players[2]
+        self.game.trump = 'D'
+
+        self.assertTrue(self.game.check_trick_end())
+        self.assertEqual(self.game.players[1], self.check_winner())
+
+    def test_score_trick_with_trump_set_not_played_change_starter(self):
+        test_trick = ['CA', 'S6', 'SJ', 'S8']
+        self.prepare_trick(test_trick)
+
+        self.game.active_player = self.game.players[3]
+        self.game.trump = 'D'
+
+        self.assertTrue(self.game.check_trick_end())
+        self.assertEqual(self.game.players[2], self.check_winner())
 
 if __name__ == '__main__':
     unittest.main()

@@ -8,7 +8,7 @@ deck = [s+n for n in CARD_NUMBERS for s in CARD_SUITS]
 
 
 def get_value(card):
-    return CARD_NUMBERS.index(card[1])
+    return CARD_NUMBERS.index(card[1:])
 
 
 def get_suit(card):
@@ -105,3 +105,5 @@ class MarjapussiGame:
             if player.cards.table == highest_card:
                 player.cards.won.append(trick_cards)
             player.cards.table = None
+
+        return True
