@@ -195,5 +195,37 @@ class MarjapussiTrickScoringTestCase(unittest.TestCase):
         self.assertEqual(self.game.players[2], self.check_winner())
 
 
+class MarjapussiDictionaryTransformTestCase(unittest.TestCase):
+    def setUp(self):
+        self.game = marjapussi.MarjapussiGame()
+        for pid in range(4):
+            self.game.join(pid)
+        self.game.deal()
+
+        self.play_trick()
+        self.play_trick()
+        self.play_trick()
+
+        self.game.play_card(self.game.active_player.id, self.game.active_player.cards.hand[0])
+        self.game.play_card(self.game.active_player.id, self.game.active_player.cards.hand[0])
+
+    def play_trick(self):
+        for i in range(4):
+            self.game.play_card(self.game.active_player.id, self.game.active_player.cards.hand[0])
+        self.game.check_trick_end()
+
+    def test_dictionary_transforms(self):
+        game_dict = self.game.to_dict_full()
+        game_from_dict = marjapussi.MarjapussiGame.from_dict(game_dict)
+        game_dict2 = self.game.to_dict_full()
+
+        self.assertEqual(game_dict, game_dict2)
+
+        for p1, p2 in zip(self.game.players, game_from_dict.players):
+            self.assertEqual(p1.cards.hand, p2.cards.hand)
+            self.assertEqual(p1.cards.table, p2.cards.table)
+            self.assertEqual(p1.cards.won, p2.cards.won)
+
+
 if __name__ == '__main__':
     unittest.main()
