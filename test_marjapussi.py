@@ -136,6 +136,7 @@ class MarjapussiGameActionsTestCase(unittest.TestCase):
 
             self.assertTrue(self.game.deal())
 
+
 class MarjapussiTrickScoringTestCase(unittest.TestCase):
     def setUp(self):
         self.game = marjapussi.MarjapussiGame()
@@ -192,6 +193,7 @@ class MarjapussiTrickScoringTestCase(unittest.TestCase):
 
         self.assertTrue(self.game.check_trick_end())
         self.assertEqual(self.game.players[2], self.check_winner())
+
 
 if __name__ == '__main__':
     unittest.main()
