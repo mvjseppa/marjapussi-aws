@@ -1,5 +1,8 @@
 import random
+import simplejson as json
 from typing import Optional, List
+from copy import deepcopy
+
 
 # Marjapussi card values from lowest to highest
 CARD_NUMBERS = ['6', '7', '8', '9', 'J', 'Q', 'K', '10', 'A']
@@ -107,3 +110,24 @@ class MarjapussiGame:
             player.cards.table = None
 
         return True
+
+    def to_dict_full(self):
+        game = deepcopy(self)
+
+        game.active_player = game.active_player.id
+        game.dealer = game.dealer.id
+
+        for p in game.players:
+            p.cards = vars(p.cards)
+
+        game.players = [vars(p) for p in game.players]
+
+        return vars(game)
+
+    def to_dict_for_player(self, player_id):
+        game = self.to_dict_full()
+        for p in game['players']:
+            if p['id'] != player_id:
+                p['cards']['hand'] = len(p['cards']['hand'])
+
+        return game

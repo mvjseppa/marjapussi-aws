@@ -99,7 +99,7 @@ class MarjapussiGameActionsTestCase(unittest.TestCase):
         self.assertTrue(card not in self.game.players[1].cards.hand)
         self.assertEqual(card, self.game.players[1].cards.table)
 
-    def test_cannot_play_card_that_if_not_in_hand(self):
+    def test_cannot_play_card_that_is_not_in_hand(self):
         self.assertEqual(self.game.active_player, self.game.players[0])
         pid = self.game.players[0].id
         card = self.game.players[1].cards.hand[4]
