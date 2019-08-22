@@ -23,6 +23,13 @@ class MarjapussiPlayerCards:
         self.table = None
         self.won = []
 
+    @staticmethod
+    def from_dict(d):
+        cards = MarjapussiPlayerCards()
+        for k, v in d.items():
+            setattr(cards, k, v)
+        return cards
+
 
 class MarjapussiPlayer:
     def __init__(self, player_id, position):
@@ -30,6 +37,15 @@ class MarjapussiPlayer:
         self.cards = MarjapussiPlayerCards()
         self.position = position
         self.score = 0
+
+    @staticmethod
+    def from_dict(d):
+        player = MarjapussiPlayer(0, 0)
+        player.cards = MarjapussiPlayerCards.from_dict(d['cards'])
+        for k, v in d.items():
+            if k != 'cards':
+                setattr(player, k, v)
+        return player
 
 
 class MarjapussiGame:
@@ -129,4 +145,13 @@ class MarjapussiGame:
             if p['id'] != player_id:
                 p['cards']['hand'] = len(p['cards']['hand'])
 
+        return game
+
+    @staticmethod
+    def from_dict(d):
+        game = MarjapussiGame()
+        game.players = [MarjapussiPlayer.from_dict(pd) for pd in d['players']]
+        for k, v in d.items():
+            if k != 'players':
+                setattr(game, k, v)
         return game
