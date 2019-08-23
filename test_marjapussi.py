@@ -120,6 +120,13 @@ class MarjapussiGameActionsTestCase(unittest.TestCase):
             card = self.game.active_player.cards.hand[0]
             self.assertTrue(self.game.play_card(pid, card))
 
+            full_trick = self.game.trick_is_full()
+            if expected_player == 3:
+                self.assertTrue(full_trick)
+                self.assertTrue(self.game.check_trick_end())
+            else:
+                self.assertFalse(full_trick)
+
     def test_dealer_turn_is_passed_correctly(self):
         self.assertEqual(self.game.active_player, self.game.players[0])
         self.assertEqual(self.game.dealer, self.game.players[1])

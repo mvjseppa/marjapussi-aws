@@ -94,11 +94,15 @@ class MarjapussiGame:
             idx = 0
         return self.players[idx]
 
-    def _count_cards_on_table(self):
-        return sum(1 for p in self.players if p.cards.table is not None)
+    def trick_is_full(self):
+        return sum(1 for p in self.players if p.cards.table is not None) >= 4
 
     def play_card(self, player_id, card):
-        if self.active_player.id != player_id or card not in self.active_player.cards.hand:
+        if (
+                self.trick_is_full() or
+                self.active_player.id != player_id or
+                card not in self.active_player.cards.hand
+        ):
             return False
 
         self.active_player.cards.hand.remove(card)
@@ -109,7 +113,7 @@ class MarjapussiGame:
         return True
 
     def check_trick_end(self):
-        if self._count_cards_on_table() < 4:
+        if not self.trick_is_full():
             return False
 
         highest_card = self.active_player.cards.table
