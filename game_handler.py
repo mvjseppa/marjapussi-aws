@@ -3,7 +3,7 @@ import boto3
 import os
 import marjapussi
 
-from event_utils import get_ws_details, send_event_response, send_game_state_change
+from event_utils import get_ws_details, send_event_response, notify_clients_of_state_change
 
 from botocore.exceptions import ClientError
 
@@ -47,7 +47,12 @@ def join_game(event, context):
     else:
         game.join(connection_id)
 
+    if len([p for p in game.players if p is not None]) == 4:
+        process_game_state_change(event, game, notify_only=True)
+        game.deal()
+
     process_game_state_change(event, game)
+
     return {'statusCode': 200}
 
 
@@ -61,7 +66,12 @@ def play_card(event, context):
         return {'statusCode': 200}
 
     else:
+        process_game_state_change(event, game, notify_only=True)
+        if game.trick_is_full():
+            game.end_trick()
         process_game_state_change(event, game)
+
+    return {'statusCode': 200}
 
 
 def get_game_from_db(game_id):
@@ -73,6 +83,7 @@ def get_game_from_db(game_id):
         return None
 
 
-def process_game_state_change(event, game):
-    game_db.put_item(Item=game.to_dict_full())
-    send_game_state_change(event, game)
+def process_game_state_change(event, game, notify_only=False):
+    if not notify_only:
+        game_db.put_item(Item=game.to_dict_full())
+    notify_clients_of_state_change(event, game)

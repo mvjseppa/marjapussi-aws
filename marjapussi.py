@@ -120,7 +120,7 @@ class MarjapussiGame:
 
         return True
 
-    def check_trick_end(self):
+    def end_trick(self):
         if not self.trick_is_full():
             return False
 

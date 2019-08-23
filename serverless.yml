@@ -109,7 +109,7 @@ functions:
     handler: game_handler.play_card
     events:
       - websocket:
-          route: play_card
+          route: playCard
 
 #functions:
 #  hello:

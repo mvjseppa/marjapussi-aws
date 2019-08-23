@@ -123,7 +123,7 @@ class MarjapussiGameActionsTestCase(unittest.TestCase):
             full_trick = self.game.trick_is_full()
             if expected_player == 3:
                 self.assertTrue(full_trick)
-                self.assertTrue(self.game.check_trick_end())
+                self.assertTrue(self.game.end_trick())
             else:
                 self.assertFalse(full_trick)
 
@@ -164,13 +164,13 @@ class MarjapussiTrickScoringTestCase(unittest.TestCase):
     def test_score_trick_all_same_suit(self):
         test_trick = ['H6', 'HK', 'H10', 'H8']
         self.prepare_trick(test_trick)
-        self.assertTrue(self.game.check_trick_end())
+        self.assertTrue(self.game.end_trick())
         self.assertEqual(self.game.players[2], self.check_winner())
 
     def test_score_trick_all_different_suit_no_trump(self):
         test_trick = ['H6', 'DK', 'C10', 'S8']
         self.prepare_trick(test_trick)
-        self.assertTrue(self.game.check_trick_end())
+        self.assertTrue(self.game.end_trick())
         self.assertEqual(self.game.players[0], self.check_winner())
 
     def test_score_trick_all_different_suit_no_trump_change_starter(self):
@@ -179,7 +179,7 @@ class MarjapussiTrickScoringTestCase(unittest.TestCase):
 
         self.game.active_player = self.game.players[1]
 
-        self.assertTrue(self.game.check_trick_end())
+        self.assertTrue(self.game.end_trick())
         self.assertEqual(self.game.players[1], self.check_winner())
 
     def test_score_trick_with_trumps_change_starter(self):
@@ -189,7 +189,7 @@ class MarjapussiTrickScoringTestCase(unittest.TestCase):
         self.game.active_player = self.game.players[2]
         self.game.trump = 'D'
 
-        self.assertTrue(self.game.check_trick_end())
+        self.assertTrue(self.game.end_trick())
         self.assertEqual(self.game.players[1], self.check_winner())
 
     def test_score_trick_with_trump_set_not_played_change_starter(self):
@@ -199,7 +199,7 @@ class MarjapussiTrickScoringTestCase(unittest.TestCase):
         self.game.active_player = self.game.players[3]
         self.game.trump = 'D'
 
-        self.assertTrue(self.game.check_trick_end())
+        self.assertTrue(self.game.end_trick())
         self.assertEqual(self.game.players[2], self.check_winner())
 
 
@@ -220,7 +220,7 @@ class MarjapussiDictionaryTransformTestCase(unittest.TestCase):
     def play_trick(self):
         for i in range(4):
             self.game.play_card(self.game.active_player.id, self.game.active_player.cards.hand[0])
-        self.game.check_trick_end()
+        self.game.end_trick()
 
     def test_dictionary_transforms(self):
         game_dict = self.game.to_dict_full()

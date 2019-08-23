@@ -19,7 +19,7 @@ def send_event_response(event, data):
     )
 
 
-def send_game_state_change(event, game_state: marjapussi.MarjapussiGame):
+def notify_clients_of_state_change(event, game_state: marjapussi.MarjapussiGame):
     _, endpoint_url = get_ws_details(event)
     client = boto3.client('apigatewaymanagementapi', endpoint_url=endpoint_url)
 
