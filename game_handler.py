@@ -23,7 +23,7 @@ def create_game(event, context):
         "gameState": game.to_dict_for_player(player_id)
     }
 
-    game_db.put_item(Item=game.to_dict_full())
+    put_state_to_db(game)
     send_event_response(event, response_item)
     return {'statusCode': 200}
 
@@ -47,11 +47,13 @@ def join_game(event, context):
     else:
         game.join(connection_id)
 
-    if len([p for p in game.players if p is not None]) == 4:
-        process_game_state_change(event, game, notify_only=True)
-        game.deal()
+    notify_clients_of_state_change(event, game)
 
-    process_game_state_change(event, game)
+    if len([p for p in game.players if p is not None]) == 4:
+        game.deal()
+        notify_clients_of_state_change(event, game)
+
+    put_state_to_db(game)
 
     return {'statusCode': 200}
 
@@ -66,10 +68,12 @@ def play_card(event, context):
         return {'statusCode': 200}
 
     else:
-        process_game_state_change(event, game, notify_only=True)
+        notify_clients_of_state_change(event, game)
         if game.trick_is_full():
             game.end_trick()
-        process_game_state_change(event, game)
+            notify_clients_of_state_change(event, game)
+
+        put_state_to_db(game)
 
     return {'statusCode': 200}
 
@@ -83,7 +87,5 @@ def get_game_from_db(game_id):
         return None
 
 
-def process_game_state_change(event, game, notify_only=False):
-    if not notify_only:
-        game_db.put_item(Item=game.to_dict_full())
-    notify_clients_of_state_change(event, game)
+def put_state_to_db(game):
+    game_db.put_item(Item=game.to_dict_full())
