@@ -99,11 +99,17 @@ functions:
       - websocket:
           route: createGame
 
-  getGame:
-    handler: game_handler.get_game
+  joinGame:
+    handler: game_handler.join_game
     events:
       - websocket:
-          route: getGame
+          route: joinGame
+
+  playCard:
+    handler: game_handler.play_card
+    events:
+      - websocket:
+          route: play_card
 
 #functions:
 #  hello:

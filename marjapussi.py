@@ -70,6 +70,14 @@ class MarjapussiGame:
 
         return self.players[free_slot].id
 
+    def rejoin(self, player_id, connection_id):
+        try:
+            player = next(p for p in self.players if p is not None and p.id == player_id)
+        except StopIteration:
+            return False
+        player.connection_id = connection_id
+        return True
+
     def deal(self):
         if None in self.players:
             return False
