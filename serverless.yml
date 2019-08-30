@@ -28,8 +28,8 @@ provider:
   region: eu-central-1
   profile: serverless-admin
 
-  websocketsApiName: custom-websockets-api-name
-  websocketsApiRouteSelectionExpression: $request.body.action
+  websocketsApiName: marjapussi-websocket-api
+  websocketsApiRouteSelectionExpression: $request.body.type
 
   environment:
       DYNAMO_GAMES_TABLE: ${self:service}-${self:custom.stage}-games
@@ -97,19 +97,25 @@ functions:
     handler: game_handler.create_game
     events:
       - websocket:
-          route: createGame
+          route: CREATE_GAME
 
   joinGame:
     handler: game_handler.join_game
     events:
       - websocket:
-          route: joinGame
+          route: JOIN_GAME
 
   playCard:
     handler: game_handler.play_card
     events:
       - websocket:
-          route: playCard
+          route: PLAY_CARD
+
+  listGames:
+    handler: game_handler.list_games
+    events:
+      - websocket:
+          route: LIST_GAMES
 
 #functions:
 #  hello:

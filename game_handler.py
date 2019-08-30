@@ -6,6 +6,7 @@ import marjapussi
 from event_utils import get_ws_details, send_event_response, notify_clients_of_state_change
 
 from botocore.exceptions import ClientError
+from boto3.dynamodb.conditions import Attr
 
 dynamo = boto3.resource('dynamodb')
 game_db = dynamo.Table(os.environ['DYNAMO_GAMES_TABLE'])
@@ -19,6 +20,7 @@ def create_game(event, context):
     player_id = game.join(connection_id)
 
     response_item = {
+        "type": "UPDATE_GAME_STATE",
         "playerId": player_id,
         "gameState": game.to_dict_for_player(player_id)
     }
@@ -39,7 +41,7 @@ def join_game(event, context):
     game = get_game_from_db(body['gameId'])
 
     if game is None:
-        send_event_response(event, {'error': 'not found'})
+        send_event_response(event, {'type': 'ERROR', 'message': 'not found'})
         return {'statusCode': 200}
 
     if player_id:
@@ -64,7 +66,7 @@ def play_card(event, context):
 
     success = game.play_card(body['playerId'], body['card'])
     if not success:
-        send_event_response(event, {'error': 'invalid play'})
+        send_event_response(event, {'type': 'ERROR', 'message': 'invalid play'})
         return {'statusCode': 200}
 
     else:
@@ -74,6 +76,15 @@ def play_card(event, context):
             notify_clients_of_state_change(event, game)
 
         put_state_to_db(game)
+
+    return {'statusCode': 200}
+
+
+def list_games(event, context):
+    scan_result = game_db .scan(FilterExpression=Attr('players').contains(None))
+
+    response = {'type': 'GAME_LIST_READY', 'gameIds': [i['id'] for i in scan_result['Items']]}
+    send_event_response(event, response)
 
     return {'statusCode': 200}
 

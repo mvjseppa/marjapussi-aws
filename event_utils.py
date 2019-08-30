@@ -1,11 +1,12 @@
 import boto3
 import simplejson as json
 import marjapussi
+from botocore.exceptions import ClientError
 
 
 def get_ws_details(event):
     req = event['requestContext']
-    connection_id = req['connectionId'];
+    connection_id = req['connectionId']
     endpoint_url = 'https://' + req['domainName'] + '/' + req['stage']
     return connection_id, endpoint_url
 
@@ -28,14 +29,17 @@ def notify_clients_of_state_change(event, game_state: marjapussi.MarjapussiGame)
             continue
         data = json.dumps(
             {
-                "playerId": player.id,
-                "gameState": game_state.to_dict_for_player(player.id)
+                'type': 'UPDATE_GAME_STATE',
+                'playerId': player.id,
+                'gameId': game_state.id,
+                'gameState': game_state.to_dict_for_player(player.id)
             }
         ).encode('utf-8')
-        connection_id = player.connection_id
 
-        client.post_to_connection(
-            ConnectionId=connection_id,
-            Data=data
-        )
-
+        try:
+            client.post_to_connection(
+                ConnectionId=player.connection_id,
+                Data=data
+            )
+        except ClientError:
+            continue
