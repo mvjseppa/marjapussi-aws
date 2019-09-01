@@ -96,7 +96,15 @@ def play_card(event, context):
 def list_games(event, context):
     scan_result = game_db .scan(FilterExpression=Attr('players').contains(None))
 
-    response = {'type': 'GAME_LIST_READY', 'gameIds': [i['id'] for i in scan_result['Items']]}
+    response = {
+        'type': 'GAME_LIST_READY',
+        'gameList': [
+            {
+                'id': i['id'],
+                'name': i['name']
+            } for i in scan_result['Items']
+        ]
+    }
     send_event_response(event, response)
 
     return {'statusCode': 200}
