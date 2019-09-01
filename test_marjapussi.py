@@ -15,7 +15,7 @@ class MarjapussiNewGameTestCase(unittest.TestCase):
     def test_adding_players(self):
         game = marjapussi.MarjapussiGame()
         for idx, connection_id in enumerate([123, 456, 789, 612]):
-            player_id = game.join(connection_id)
+            player_id = game.join('testname', connection_id)
             self.assertIsNotNone(player_id)
             players = list(filter(lambda x: x is not None, game.players))
             self.assertEqual(idx + 1, len(players))
@@ -30,15 +30,15 @@ class MarjapussiNewGameTestCase(unittest.TestCase):
     def test_cannot_join_full_game(self):
         game = marjapussi.MarjapussiGame()
         for pid in range(4):
-            self.assertTrue(game.join(pid))
-        self.assertFalse(game.join(5))
+            self.assertTrue(game.join('testname', pid))
+        self.assertFalse(game.join('testname', 5))
         self.assertEqual([], [p for p in game.players if p.id == 5])
 
     def test_need_four_players_to_deal(self):
         game = marjapussi.MarjapussiGame()
         for pid in range(4):
             self.assertFalse(game.deal())
-            self.assertTrue(game.join(pid))
+            self.assertTrue(game.join('testname', pid))
 
         for p in game.players:
             self.assertEqual([], p.cards.hand)
@@ -65,7 +65,7 @@ class MarjapussiGameActionsTestCase(unittest.TestCase):
     def setUp(self):
         self.game = marjapussi.MarjapussiGame()
         for pid in range(4):
-            self.assertTrue(self.game.join(pid))
+            self.assertTrue(self.game.join('testname', pid))
         self.game.deal()
 
     def test_playing_card(self):
@@ -149,7 +149,7 @@ class MarjapussiTrickScoringTestCase(unittest.TestCase):
     def setUp(self):
         self.game = marjapussi.MarjapussiGame()
         for pid in range(4):
-            self.assertTrue(self.game.join(pid))
+            self.assertTrue(self.game.join('testname', pid))
 
     def prepare_trick(self, trick):
         for card, player in zip(trick, self.game.players):
@@ -207,7 +207,7 @@ class MarjapussiDictionaryTransformTestCase(unittest.TestCase):
     def setUp(self):
         self.game = marjapussi.MarjapussiGame()
         for pid in range(4):
-            self.game.join(pid)
+            self.game.join('testname', pid)
         self.game.deal()
 
         self.play_trick()

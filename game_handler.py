@@ -16,8 +16,15 @@ def create_game(event, context):
 
     connection_id, _ = get_ws_details(event)
 
+    body = json.loads(event['body'])
+    try:
+        player_name = body['playerName']
+    except KeyError:
+        send_event_response(event, {'type': 'error', 'message': 'Missing player name.'})
+        return {'statusCode': 200}
+
     game = marjapussi.MarjapussiGame()
-    player_id = game.join(connection_id)
+    player_id = game.join(player_name, connection_id)
 
     response_item = {
         "type": "UPDATE_GAME_STATE",
@@ -38,6 +45,12 @@ def join_game(event, context):
     except KeyError:
         player_id = None
 
+    try:
+        player_name = body['playerName']
+    except KeyError:
+        send_event_response(event, {'type': 'error', 'message': 'Missing player name.'})
+        return {'statusCode': 200}
+
     game = get_game_from_db(body['gameId'])
 
     if game is None:
@@ -47,7 +60,7 @@ def join_game(event, context):
     if player_id:
         game.rejoin(player_id, connection_id)
     else:
-        game.join(connection_id)
+        game.join(player_name, connection_id)
 
     notify_clients_of_state_change(event, game)
 

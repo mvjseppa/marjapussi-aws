@@ -33,8 +33,9 @@ class MarjapussiPlayerCards:
 
 
 class MarjapussiPlayer:
-    def __init__(self, connection_id, position):
+    def __init__(self, name, connection_id, position):
         self.id = str(uuid.uuid4())
+        self.name = name
         self.connection_id = connection_id
         self.cards = MarjapussiPlayerCards()
         self.position = position
@@ -42,7 +43,7 @@ class MarjapussiPlayer:
 
     @staticmethod
     def from_dict(d):
-        player = MarjapussiPlayer(0, 0)
+        player = MarjapussiPlayer("", 0, 0)
         player.cards = MarjapussiPlayerCards.from_dict(d['cards'])
         for k, v in d.items():
             if k != 'cards':
@@ -53,20 +54,22 @@ class MarjapussiPlayer:
 class MarjapussiGame:
     def __init__(self):
         self.id = str(uuid.uuid4())
+        self.name = "Empty game"
         self.players: List[Optional[MarjapussiPlayer]] = [None] * 4
         self.active_player = None
         self.dealer = None
         self.trump = None
 
-    def join(self, connection_id):
+    def join(self, player_name, connection_id):
         try:
             free_slot = self.players.index(None)
         except ValueError:
             return None
-        self.players[free_slot] = MarjapussiPlayer(connection_id, free_slot)
+        self.players[free_slot] = MarjapussiPlayer(player_name, connection_id, free_slot)
 
         if free_slot == 0:
             self.active_player = self.dealer = self.players[0]
+            self.name = self.players[0].name + "'s game"
 
         return self.players[free_slot].id
 
