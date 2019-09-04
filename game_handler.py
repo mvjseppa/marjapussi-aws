@@ -27,9 +27,10 @@ def create_game(event, context):
     player_id = game.join(player_name, connection_id)
 
     response_item = {
-        "type": "UPDATE_GAME_STATE",
-        "playerId": player_id,
-        "gameState": game.to_dict_for_player(player_id)
+        'type': 'UPDATE_GAME_STATE',
+        'playerId': player_id,
+        'gameId': game.id,
+        'gameState': game.to_dict_for_player(player_id)
     }
 
     put_state_to_db(game)
