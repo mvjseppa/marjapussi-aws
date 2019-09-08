@@ -1,13 +1,13 @@
 import random
 import uuid
 from typing import Optional, List
-from copy import deepcopy
-
+from copy import copy, deepcopy
+from functools import cmp_to_key
 
 # Marjapussi card values from lowest to highest
 CARD_NUMBERS = ['6', '7', '8', '9', 'J', 'Q', 'K', '10', 'A']
 CARD_SUITS = ['H', 'S', 'D', 'C']
-deck = [s+n for n in CARD_NUMBERS for s in CARD_SUITS]
+DECK = [s+n for s in CARD_SUITS for n in CARD_NUMBERS]
 
 
 def get_value(card):
@@ -16,6 +16,9 @@ def get_value(card):
 
 def get_suit(card):
     return card[0]
+
+def hand_order_compare(card1, card2):
+    return DECK.index(card1) - DECK.index(card2)
 
 
 class MarjapussiPlayerCards:
@@ -85,11 +88,13 @@ class MarjapussiGame:
         if None in self.players:
             return False
 
+        deck = copy(DECK)
         random.shuffle(deck)
 
         for idx, player in enumerate(self.players):
             deck_slice = (0 + 9*idx, 9+9*idx)
             player.cards.hand = deck[deck_slice[0]:deck_slice[1]]
+            player.cards.hand = sorted(player.cards.hand, key=cmp_to_key(hand_order_compare))
             player.cards.table = None
             player.cards.won = []
 
