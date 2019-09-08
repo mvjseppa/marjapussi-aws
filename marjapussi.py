@@ -140,6 +140,7 @@ class MarjapussiGame:
         for player in self.players:
             if player.cards.table == highest_card:
                 player.cards.won.append(trick_cards)
+                self.active_player = player
             player.cards.table = None
 
         return True
@@ -166,6 +167,7 @@ class MarjapussiGame:
         for p in game['players']:
             if p is not None and p['id'] != player_id:
                 p['cards']['hand'] = len(p['cards']['hand'])
+                p['id'] = None
 
         return game
 
